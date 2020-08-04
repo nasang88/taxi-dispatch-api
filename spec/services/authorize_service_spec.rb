@@ -1,7 +1,7 @@
 # spec/auth/authorize_api_request_spec.rb
 require 'rails_helper'
 
-RSpec.describe AuthorizeApiRequest do
+RSpec.describe Auth::AuthorizeService, type: :service do
   let(:user) { create(:user) }
   let(:header) { { 'Authorization' => token_generator(user.id) } }
   subject { described_class.new(header) }

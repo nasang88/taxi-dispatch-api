@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   def create
     user = User.create!(user_params)
-    auth_user = AuthenticateUser.new(user.email, user.password).call
+    auth_user = Auth::AuthenticateService.new(user.email, user.password).call
     json_response(auth_user, :created)
   end
 

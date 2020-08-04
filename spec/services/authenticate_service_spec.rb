@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AuthenticateUser do
+RSpec.describe Auth::AuthenticateService, type: :service do
   let(:user) { create(:user) }
   let(:email) { user.email }
   let(:password) { user.password }
