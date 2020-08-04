@@ -16,8 +16,8 @@ RSpec.describe 'Users API', type: :request do
       end
 
       it '가입 회원정보 반환' do
-        expect(json['email']).to eq(user.email)
-        expect(json['user_type']).to eq(user.user)
+        expect(json['email']).to eq("taxi@remember.co.kr")
+        expect(json['type']).to eq("passenger")
         expect(json['auth_token']).not_to be_nil
       end
     end
