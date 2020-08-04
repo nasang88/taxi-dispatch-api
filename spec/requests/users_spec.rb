@@ -21,5 +21,14 @@ RSpec.describe 'Users API', type: :request do
         expect(json['auth_token']).not_to be_nil
       end
     end
+
+
+    context '회원가입 실패' do
+      before { post '/signup', params: {} , headers: headers }
+
+      it '새 회원 작성' do
+        expect(response).to have_http_status(400)
+      end
+    end
   end
 end
