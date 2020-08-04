@@ -8,7 +8,7 @@ RSpec.describe AuthenticateUser do
   describe '#call' do
     context '유효한 인증인 경우' do
       it '토큰 반환' do
-        token = valid_auth_obj.funcall
+        token = valid_auth_obj.call
         expect(token).not_to be_nil
       end
     end
