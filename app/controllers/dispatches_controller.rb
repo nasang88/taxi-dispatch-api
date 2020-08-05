@@ -1,5 +1,5 @@
 class DispatchesController < ApplicationController
-  before_action :set_params, only: [:update, :cancel_dispatch ,:delete_dispatch]
+  before_action :set_params, only: [:accept_dispatch, :cancel_dispatch ,:delete_dispatch]
 
   #
   # GET /dispatches
@@ -30,7 +30,7 @@ class DispatchesController < ApplicationController
 
   #
   # POST /dispatches
-  def create
+  def create_dispatch
     if !passenger_user
       return json_response({}, :bad_request)
     end
@@ -39,8 +39,8 @@ class DispatchesController < ApplicationController
   end
 
   #
-  # PATCH /dispatches/:id
-  def update
+  # POST /dispatches/:id/accept
+  def accept_dispatch
     if passenger_user
       return json_response({}, :bad_request)
     end
