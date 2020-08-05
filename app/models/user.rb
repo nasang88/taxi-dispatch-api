@@ -1,5 +1,7 @@
 class User < ApplicationRecord
 
+  has_one :dispatch
+
   enum user_type: { passenger: "passenger", driver: "driver" }
 
   validates_uniqueness_of :email
