@@ -17,6 +17,10 @@ module ExceptionHandler
     rescue_from ActiveRecord::RecordInvalid do |e|
       json_response({}, :bad_request)
     end
+
+    rescue_from ActionController::ParameterMissing do |e|
+      json_response({}, :bad_request)
+    end
   end
 
   private
