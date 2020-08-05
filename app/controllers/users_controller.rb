@@ -2,6 +2,8 @@ class UsersController < ApplicationController
 
   skip_before_action :authorize
 
+  #
+  # POST /signup
   def create
     user = User.create!(user_params)
     auth_user = Auth::AuthenticateService.new(user.email, user.password).call

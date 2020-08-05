@@ -1,18 +1,21 @@
 class DispatchesController < ApplicationController
   before_action :set_params, only: [:show, :update]
 
+  #
   # GET /dispatches
   def index
     @dispatches = Dispatch.all
     json_response(@dispatches)
   end
 
+  #
   # POST /dispatches
   def create
     @dispatch = Dispatch.create!(dispatch_request_params)
     json_response(@dispatch, :created)
   end
 
+  #
   # PATCH /dispatches/:id
   def update
     @dispatch.update(dispatch_accept_params)
