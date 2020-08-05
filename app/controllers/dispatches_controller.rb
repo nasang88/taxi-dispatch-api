@@ -18,6 +18,10 @@ class DispatchesController < ApplicationController
   #
   # PATCH /dispatches/:id
   def update
+    if @dispatch.driver_id ||  @dispatch.accepted_at
+      return json_response({}, :conflict)
+    end
+
     @dispatch.update(dispatch_accept_params)
     json_response(@dispatch)
   end

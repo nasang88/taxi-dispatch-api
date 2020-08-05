@@ -88,5 +88,14 @@ RSpec.describe 'Taxi Dispatch API', type: :request do
         expect(response).to have_http_status(400)
       end
     end
+
+    context '이미 배차 완료된 요청' do
+      before { patch "/dispatches/#{id}", params: valid_attributes, headers: headers  }
+      before { patch "/dispatches/#{id}", params: valid_attributes, headers: headers  }
+
+      it 'status: 409' do
+        expect(response).to have_http_status(409)
+      end
+    end
   end
 end
