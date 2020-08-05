@@ -16,26 +16,75 @@ RSpec.describe 'Taxi Dispatch API', type: :request do
   # 배차 요청 목록 조회
   describe 'GET /dispatches' do
 
-    context '목록조회 성공' do
-      before { get '/dispatches', headers: passenger_headers }
-      it 'returns dispatches' do
-        expect(json).not_to be_empty
-        expect(json.size).to eq(10)
+    context '전체 목록 조회' do
+      context '성공' do
+        before { get '/dispatches', headers: passenger_headers }
+        it 'returns dispatches' do
+          expect(json).not_to be_empty
+          expect(json.size).to eq(10)
+        end
+
+        it 'ordered by requested_at(desc)' do
+          expect(json[0]['address']).to eq(dispatches.sort_by(&:requested_at).reverse.first.address)
+          expect(json[mock_dispatches_size - 1]['address']).to eq(dispatches.sort_by(&:requested_at).reverse.last.address)
+        end
+
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
+        end
       end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+      context '실패' do
+        context '인증정보가 유효하지 않음' do
+          before { get '/dispatches', headers: {} }
+
+          it 'status: 401' do
+            expect(response).to have_http_status(401)
+          end
+        end
       end
     end
 
-    context '인증정보가 유효하지 않음' do
-      before { get '/dispatches', headers: {} }
+    context '내 요청 목록 조회' do
 
-      it 'status: 401' do
-        expect(response).to have_http_status(401)
+      context '성공' do
+        # TODO 작성 중
+      end
+
+      context '실패' do
+        context '승객이 아닌 경우' do
+          before { get '/dispatches/request', headers: driver_headers }
+
+          it 'status: 400' do
+            expect(response).to have_http_status(400)
+          end
+        end
       end
     end
 
+    context '내 수락 목록 조회' do
+      let(:valid_attributes) { { accepted_at: '2020-07-28 11:55:00' } }
+
+      context '성공' do
+        before { post "/dispatches/#{id}/accept", params: valid_attributes, headers: raw_driver_headers }
+        before { get '/dispatches/accept', headers: driver_headers }
+
+        it 'returns dispatches' do
+          expect(json.size).to eq(1)
+          expect(json[0]["driver_id"]).to eq(driver_user.id)
+        end
+      end
+
+      context '실패' do
+        context '기사가 아닌 경우' do
+          before { get '/dispatches/accept', headers: passenger_headers }
+
+          it 'status: 400' do
+            expect(response).to have_http_status(400)
+          end
+        end
+      end
+    end
   end
 
   # 배차 요청
