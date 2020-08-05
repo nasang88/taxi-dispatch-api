@@ -4,7 +4,8 @@ class DispatchesController < ApplicationController
   #
   # GET /dispatches
   def index
-    @dispatches = Dispatch.all
+    @dispatches = Dispatch.all.order(:requested_at).reverse
+
     json_response(@dispatches)
   end
 
@@ -14,7 +15,7 @@ class DispatchesController < ApplicationController
     if !passenger_user
       return json_response({}, :bad_request)
     end
-    @dispatches = Dispatch.where(passenger_id: current_user.id)
+    @dispatches = Dispatch.where(passenger_id: current_user.id).order(:requested_at).reverse
     json_response(@dispatches)
   end
 
@@ -24,7 +25,7 @@ class DispatchesController < ApplicationController
     if passenger_user
       return json_response({}, :bad_request)
     end
-    @dispatches = Dispatch.where(driver_id: current_user.id)
+    @dispatches = Dispatch.where(driver_id: current_user.id).order(:requested_at).reverse
     json_response(@dispatches)
   end
 
