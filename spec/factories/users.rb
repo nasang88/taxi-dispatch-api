@@ -16,4 +16,16 @@ FactoryBot.define do
     password 'pw1234'
     user_type 'driver'
   end
+
+  factory :another_passenger_user, class: User do
+    email 'passenger_another@remember.co.kr'
+    password 'pw1234'
+    user_type 'passenger'
+  end
+
+  factory :another_driver_user, class: User  do
+    email 'driver_another@remember.co.kr'
+    password 'pw1234'
+    user_type 'driver'
+  end
 end
