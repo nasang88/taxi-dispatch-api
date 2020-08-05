@@ -1,4 +1,7 @@
 class AuthenticationController < ApplicationController
+
+  skip_before_action :authorize
+
   def authenticate
     auth_user = Auth::AuthenticateService.new(auth_params[:email], auth_params[:password]).call
     json_response(auth_user)
