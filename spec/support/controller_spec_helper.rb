@@ -14,6 +14,12 @@ module ControllerSpecHelper
     }
   end
 
+  def raw_valid_headers
+    {
+        "Authorization" => token_generator(user.id)
+    }
+  end
+
   def invalid_headers
     {
         "Authorization" => nil,
