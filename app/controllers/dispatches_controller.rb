@@ -11,6 +11,9 @@ class DispatchesController < ApplicationController
   #
   # POST /dispatches
   def create
+    if !passenger_user
+      return json_response({}, :bad_request)
+    end
     @dispatch = Dispatch.create!(dispatch_request_params)
     json_response(@dispatch, :created)
   end
@@ -18,7 +21,11 @@ class DispatchesController < ApplicationController
   #
   # PATCH /dispatches/:id
   def update
-    if @dispatch.driver_id ||  @dispatch.accepted_at
+    if passenger_user
+      return json_response({}, :bad_request)
+    end
+
+    if is_accepted_request
       return json_response({}, :conflict)
     end
 
@@ -27,6 +34,14 @@ class DispatchesController < ApplicationController
   end
 
   private
+
+  def passenger_user
+    current_user.user_type == 'passenger'
+  end
+
+  def is_accepted_request
+    @dispatch.driver_id || @dispatch.accepted_at
+  end
 
   def dispatch_request_params
     params[:passenger_id] = current_user.id
