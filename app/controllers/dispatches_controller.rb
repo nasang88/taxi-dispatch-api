@@ -1,10 +1,30 @@
 class DispatchesController < ApplicationController
-  before_action :set_params, only: [:show, :update]
+  before_action :set_params, only: [:update, :cancel_dispatch ,:delete_dispatch]
 
   #
   # GET /dispatches
   def index
     @dispatches = Dispatch.all
+    json_response(@dispatches)
+  end
+
+  #
+  # GET /dispatches/request
+  def show_dispatch_request
+    if !passenger_user
+      return json_response({}, :bad_request)
+    end
+    @dispatches = Dispatch.where(passenger_id: current_user.id)
+    json_response(@dispatches)
+  end
+
+  #
+  # GET /dispatches/accept
+  def show_dispatch_accept
+    if passenger_user
+      return json_response({}, :bad_request)
+    end
+    @dispatches = Dispatch.where(driver_id: current_user.id)
     json_response(@dispatches)
   end
 
@@ -33,6 +53,32 @@ class DispatchesController < ApplicationController
     json_response(@dispatch)
   end
 
+  #
+  # POST  /dispatches/:id/cancel
+  def cancel_dispatch
+    if !is_mine(target_id: @dispatch.driver_id)
+      return json_response({}, :bad_request)
+    end
+
+    @dispatch.update(dispatch_cancel_params)
+    json_response(@dispatch)
+  end
+
+  #
+  # DELETE  /dispatches/:id
+  def delete_dispatch
+    if !is_mine(target_id: @dispatch.passenger_id)
+      return json_response({}, :bad_request)
+    end
+
+    if is_accepted_request
+      return json_response({}, :conflict)
+    end
+
+    @dispatch.destroy
+    json_response({})
+  end
+
   private
 
   def passenger_user
@@ -43,6 +89,10 @@ class DispatchesController < ApplicationController
     @dispatch.driver_id || @dispatch.accepted_at
   end
 
+  def is_mine(target_id:)
+    current_user.id == target_id
+  end
+
   def dispatch_request_params
     params[:passenger_id] = current_user.id
     params.permit(:address, :passenger_id, :requested_at)
@@ -51,6 +101,12 @@ class DispatchesController < ApplicationController
   def dispatch_accept_params
     params[:driver_id] = current_user.id
     params.require(:accepted_at)
+    params.permit(:driver_id, :accepted_at)
+  end
+
+  def dispatch_cancel_params
+    params[:driver_id] = nil
+    params[:accepted_at] = nil
     params.permit(:driver_id, :accepted_at)
   end
 

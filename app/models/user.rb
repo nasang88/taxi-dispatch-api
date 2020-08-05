@@ -1,6 +1,6 @@
 class User < ApplicationRecord
 
-  has_one :dispatch
+  has_many :dispatch
 
   enum user_type: { passenger: "passenger", driver: "driver" }
 
