@@ -23,11 +23,20 @@ RSpec.describe 'Users API', type: :request do
     end
 
 
-    context '회원가입 실패' do
+    context '가입정보 누락' do
       before { post '/signup', params: {} , headers: headers }
 
-      it '새 회원 작성' do
+      it 'status: 400' do
         expect(response).to have_http_status(400)
+      end
+    end
+
+    context '이미 가입된 회원' do
+      before { post '/signup', params: valid_attributes.to_json, headers: headers }
+      before { post '/signup', params: valid_attributes.to_json, headers: headers }
+
+      it 'status: 409' do
+        expect(response).to have_http_status(409)
       end
     end
   end

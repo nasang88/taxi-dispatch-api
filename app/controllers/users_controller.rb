@@ -5,6 +5,10 @@ class UsersController < ApplicationController
   #
   # POST /signup
   def create
+    if User.find_by_email(user_params[:email])
+      return json_response({}, :conflict)
+    end
+
     user = User.create!(user_params)
     auth_user = Auth::AuthenticateService.new(user.email, user.password).call
     json_response(auth_user, :created)
