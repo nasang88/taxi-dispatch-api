@@ -22,5 +22,7 @@ $ git clone https://github.com/nasang88/taxi-dispatch-api.git && cd taxi-dispatc
 
 $ bundle install
 
+$ rails db:migrate
+
 $ rails server
 ```
