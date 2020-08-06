@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
   let(:user) { build(:user) }
-  let(:headers) { valid_headers.except('Authorization') }
+  let(:headers) { valid_headers(user_id: user).except('Authorization') }
   let(:valid_attributes) do
     attributes_for(:user, password_confirmation: user.password)
   end
@@ -16,8 +16,8 @@ RSpec.describe 'Users API', type: :request do
       end
 
       it '가입 회원정보 반환' do
-        expect(json['email']).to eq("taxi@remember.co.kr")
-        expect(json['type']).to eq("passenger")
+        expect(json['email']).to eq(user.email)
+        expect(json['type']).to eq(user.user_type)
         expect(json['auth_token']).not_to be_nil
       end
     end
