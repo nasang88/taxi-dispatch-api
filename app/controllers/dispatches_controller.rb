@@ -18,8 +18,8 @@ class DispatchesController < ApplicationController
   #
   # PATCH /dispatches/:id
   def update
-    if @dispatch.driver_id ||  @dispatch.accepted_at
-      return json_response({}, :conflict)
+    unless @dispatch.unaccepted?
+      raise ExceptionHandler::ConflictData
     end
 
     @dispatch.update(dispatch_accept_params)
@@ -29,14 +29,12 @@ class DispatchesController < ApplicationController
   private
 
   def dispatch_request_params
-    params[:passenger_id] = current_user.id
-    params.permit(:address, :passenger_id, :requested_at)
+    params.permit(:address, :passenger_id, :requested_at).merge(passenger_id: current_user[:id])
   end
 
   def dispatch_accept_params
-    params[:driver_id] = current_user.id
     params.require(:accepted_at)
-    params.permit(:driver_id, :accepted_at)
+    params.permit(:driver_id, :accepted_at).merge(driver_id: current_user[:id])
   end
 
   def set_params
