@@ -1,60 +1,53 @@
 # spec/auth/authorize_api_request_spec.rb
 require 'rails_helper'
 
-RSpec.describe AuthorizeApiRequest do
-  # Create test user
+RSpec.describe Auth::AuthorizeService, type: :service do
   let(:user) { create(:user) }
-  # Mock `Authorization` header
   let(:header) { { 'Authorization' => token_generator(user.id) } }
-  # Invalid request subject
-  subject(:invalid_request_obj) { described_class.new({}) }
-  # Valid request subject
-  subject(:request_obj) { described_class.new(header) }
-
+  subject { described_class.new(header) }
 
   describe '#call' do
     context '인증 성공' do
       it '유저 반환' do
-        result = request_obj.call
-        expect(result[:user]).to eq(user)
+        result = subject.call
+        expect(result[:id]).to eq(user.id)
+        expect(result[:email]).to eq(user.email)
+        expect(result[:auth_token]).not_to be_nil
       end
     end
 
     context '인증 실패' do
       context '토큰이 존재하지 않음' do
+        let(:header) { {} }
         it 'raises a MissingToken error' do
-          expect { invalid_request_obj.call }
+          expect { subject.call }
               .to raise_error( ExceptionHandler::MissingToken )
         end
       end
 
       context '토큰이 무효함' do
-        subject(:invalid_request_obj) do
-          described_class.new('Authorization' => token_generator(5))
-        end
+        let(:header) { { 'Authorization' => token_generator(5) } }
 
         it 'raises an InvalidToken error' do
-          expect { invalid_request_obj.call }
+          expect { subject.call }
               .to raise_error( ExceptionHandler::InvalidToken )
         end
       end
 
       context '토큰이 만료됨' do
         let(:header) { { 'Authorization' => expired_token_generator(user.id) } }
-        subject(:request_obj) { described_class.new(header) }
 
         it 'raises ExceptionHandler::ExpiredSignature error' do
-          expect { request_obj.call }
+          expect { subject.call }
               .to raise_error( ExceptionHandler::InvalidToken )
         end
       end
 
       context '무효한 토큰' do
         let(:header) { { 'Authorization' => 'foobar' } }
-        subject(:invalid_request_obj) { described_class.new(header) }
 
         it 'handles JWT::DecodeError' do
-          expect { invalid_request_obj.call }
+          expect { subject.call }
               .to raise_error( ExceptionHandler::InvalidToken )
         end
       end

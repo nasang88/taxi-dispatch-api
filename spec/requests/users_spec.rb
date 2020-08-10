@@ -15,10 +15,26 @@ RSpec.describe 'Users API', type: :request do
         expect(response).to have_http_status(201)
       end
 
-      it '가입 회원정보 반환' do
-        expect(json['email']).to eq(user.email)
-        expect(json['user_type']).to eq(user.user)
+      it '인증 토큰 반환' do
         expect(json['auth_token']).not_to be_nil
+      end
+    end
+
+
+    context '가입정보 누락' do
+      before { post '/signup', params: {} , headers: headers }
+
+      it 'status: 400' do
+        expect(response).to have_http_status(400)
+      end
+    end
+
+    context '이미 가입된 회원' do
+      before { post '/signup', params: valid_attributes.to_json, headers: headers }
+      before { post '/signup', params: valid_attributes.to_json, headers: headers }
+
+      it 'status: 409' do
+        expect(response).to have_http_status(409)
       end
     end
   end
