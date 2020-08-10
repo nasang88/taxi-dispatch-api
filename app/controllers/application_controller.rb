@@ -8,7 +8,7 @@ class ApplicationController < ActionController::API
   private
 
   def authorize
-    @current_user = (Auth::AuthorizeService.new(request.headers).call)[:user]
+    @current_user = Auth::AuthorizeService.new(request.headers).call
   end
 
 end

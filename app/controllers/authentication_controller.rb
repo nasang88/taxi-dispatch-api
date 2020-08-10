@@ -5,8 +5,8 @@ class AuthenticationController < ApplicationController
   #
   # POST /auth/login
   def authenticate
-    auth_user = Auth::AuthenticateService.new(auth_params[:email], auth_params[:password]).call
-    json_response(auth_user)
+    auth_token = Auth::AuthenticateService.new(auth_params[:email], auth_params[:password]).call
+    json_response(auth_token)
   end
 
   private

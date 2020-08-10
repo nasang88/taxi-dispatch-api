@@ -6,12 +6,7 @@ module Auth
     end
 
     def call
-      {
-          id: user.id,
-          email: user.email,
-          type: user.user_type,
-          auth_token: JsonWebToken.encode(user_id: user.id)
-      } if user
+      AuthTokenSerializer.new(user).serialized_hash if user
     end
 
     private

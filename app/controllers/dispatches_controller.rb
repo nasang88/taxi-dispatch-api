@@ -46,8 +46,8 @@ class DispatchesController < ApplicationController
       return json_response({}, :bad_request)
     end
 
-    if is_accepted_request
-      return json_response({}, :conflict)
+    unless @dispatch.unaccepted?
+      raise ExceptionHandler::ConflictData
     end
 
     @dispatch.update(dispatch_accept_params)
@@ -95,14 +95,12 @@ class DispatchesController < ApplicationController
   end
 
   def dispatch_request_params
-    params[:passenger_id] = current_user.id
-    params.permit(:address, :passenger_id, :requested_at)
+    params.permit(:address, :passenger_id, :requested_at).merge(passenger_id: current_user[:id])
   end
 
   def dispatch_accept_params
-    params[:driver_id] = current_user.id
     params.require(:accepted_at)
-    params.permit(:driver_id, :accepted_at)
+    params.permit(:driver_id, :accepted_at).merge(driver_id: current_user[:id])
   end
 
   def dispatch_cancel_params

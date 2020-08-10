@@ -15,9 +15,7 @@ RSpec.describe 'Users API', type: :request do
         expect(response).to have_http_status(201)
       end
 
-      it '가입 회원정보 반환' do
-        expect(json['email']).to eq(user.email)
-        expect(json['type']).to eq(user.user_type)
+      it '인증 토큰 반환' do
         expect(json['auth_token']).not_to be_nil
       end
     end

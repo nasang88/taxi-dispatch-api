@@ -6,4 +6,8 @@ class Dispatch < ApplicationRecord
   validates :passenger_id, presence: true, numericality: { only_integer: true }, allow_nil: false
   validates :driver_id, presence: true, numericality: { only_integer: true }, allow_nil: true
   validates :requested_at, presence: true
+
+  def unaccepted?
+    driver_id.blank? || accepted_at.blank?
+  end
 end

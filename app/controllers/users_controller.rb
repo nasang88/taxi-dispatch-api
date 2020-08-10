@@ -5,8 +5,8 @@ class UsersController < ApplicationController
   #
   # POST /signup
   def create
-    if User.find_by_email(user_params[:email])
-      return json_response({}, :conflict)
+    if User.exists?(email: user_params[:email])
+      raise ExceptionHandler::ConflictData
     end
 
     user = User.create!(user_params)
@@ -23,5 +23,5 @@ class UsersController < ApplicationController
         :password_confirmation,
         :user_type
     )
-  end
+end
 end

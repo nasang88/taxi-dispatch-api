@@ -10,7 +10,9 @@ RSpec.describe Auth::AuthorizeService, type: :service do
     context '인증 성공' do
       it '유저 반환' do
         result = subject.call
-        expect(result[:user]).to eq(user)
+        expect(result[:id]).to eq(user.id)
+        expect(result[:email]).to eq(user.email)
+        expect(result[:auth_token]).not_to be_nil
       end
     end
 
