@@ -71,7 +71,7 @@ RSpec.describe 'Taxi Dispatch API', type: :request do
 
         it 'returns dispatches' do
           expect(json.size).to eq(1)
-          expect(json[0]["driver_id"]).to eq(driver_user.id)
+          expect(json[0]["driver_id"]).to eq(driver_user[:id])
         end
       end
 

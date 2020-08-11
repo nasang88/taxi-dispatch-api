@@ -12,7 +12,7 @@ class DispatchesController < ApplicationController
   #
   # GET /dispatches/request
   def show_dispatch_request
-    if !passenger_user
+    unless passenger?
       return json_response({}, :bad_request)
     end
     @dispatches = Dispatch.where(passenger_id: current_user.id).order(:requested_at).reverse
@@ -22,17 +22,17 @@ class DispatchesController < ApplicationController
   #
   # GET /dispatches/accept
   def show_dispatch_accept
-    if passenger_user
+    if passenger?
       return json_response({}, :bad_request)
     end
-    @dispatches = Dispatch.where(driver_id: current_user.id).order(:requested_at).reverse
+    @dispatches = Dispatch.where(driver_id: current_user[:id]).order(:requested_at).reverse
     json_response(@dispatches)
   end
 
   #
   # POST /dispatches
   def create_dispatch
-    if !passenger_user
+    unless passenger?
       return json_response({}, :bad_request)
     end
     @dispatch = Dispatch.create!(dispatch_request_params)
@@ -42,7 +42,7 @@ class DispatchesController < ApplicationController
   #
   # POST /dispatches/:id/accept
   def accept_dispatch
-    if passenger_user
+    if passenger?
       return json_response({}, :bad_request)
     end
 
@@ -57,8 +57,8 @@ class DispatchesController < ApplicationController
   #
   # POST  /dispatches/:id/cancel
   def cancel_dispatch
-    if !is_mine(target_id: @dispatch.driver_id)
-      return json_response({}, :bad_request)
+    if !is_mine?(target_id: @dispatch.driver_id)
+      raise ExceptionHandler::InvalidUser
     end
 
     @dispatch.update(dispatch_cancel_params)
@@ -68,12 +68,12 @@ class DispatchesController < ApplicationController
   #
   # DELETE  /dispatches/:id
   def delete_dispatch
-    if !is_mine(target_id: @dispatch.passenger_id)
-      return json_response({}, :bad_request)
+    if !is_mine?(target_id: @dispatch.passenger_id)
+      raise ExceptionHandler::InvalidUser
     end
 
-    if is_accepted_request
-      return json_response({}, :conflict)
+    unless @dispatch.unaccepted?
+      raise ExceptionHandler::ConflictData
     end
 
     @dispatch.destroy
@@ -82,16 +82,12 @@ class DispatchesController < ApplicationController
 
   private
 
-  def passenger_user
-    current_user.user_type == 'passenger'
+  def passenger?
+    current_user[:user_type] == 'passenger'
   end
 
-  def is_accepted_request
-    @dispatch.driver_id || @dispatch.accepted_at
-  end
-
-  def is_mine(target_id:)
-    current_user.id == target_id
+  def is_mine?(target_id:)
+    current_user[:id] == target_id
   end
 
   def dispatch_request_params
@@ -104,9 +100,7 @@ class DispatchesController < ApplicationController
   end
 
   def dispatch_cancel_params
-    params[:driver_id] = nil
-    params[:accepted_at] = nil
-    params.permit(:driver_id, :accepted_at)
+    params.permit(:driver_id, :accepted_at).merge(driver_id: nil, accepted_at: nil)
   end
 
   def set_params
