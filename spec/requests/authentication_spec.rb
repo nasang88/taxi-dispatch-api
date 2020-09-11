@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe  'Authentication', type: :request do
   describe 'POST /auth/login' do
     let!(:user) { create(:user) }
-    let(:headers) { valid_headers.except('Authorization') }
+    let(:headers) { valid_headers(user_id: user).except('Authorization') }
     let(:valid_credentials) do
       {
           email: user.email,
